@@ -1,0 +1,53 @@
+import java.io.*;
+
+public class wordcounter {
+    public static void main(String[] args) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+        System.out.println("Enter your text:");
+
+        StringBuilder inputText = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null && !line.isEmpty()) {
+            inputText.append(line).append("\n");
+        }
+
+        int wordCount = countWords(inputText.toString());
+        int pageCount = countPages(inputText.toString());
+        int paragraphCount = countParagraphs(inputText.toString());
+        int lineCount = countLines(inputText.toString());
+        int charCount = countCharacters(inputText.toString());
+
+        System.out.println("\nWord Count: " + wordCount);
+        System.out.println("Page Count: " + pageCount);
+        System.out.println("Paragraph Count: " + paragraphCount);
+        System.out.println("Line Count: " + lineCount);
+        System.out.println("Character Count: " + charCount);
+    }
+
+    private static int countWords(String text) {
+        String[] words = text.split("\\s+");
+        return words.length;
+    }
+
+    private static int countPages(String text) {
+        // Assuming each page has an average of 250 words
+        int wordsPerPage = 250;
+        int wordCount = countWords(text);
+        return (int) Math.ceil((double) wordCount / wordsPerPage);
+    }
+
+    private static int countParagraphs(String text) {
+        String[] paragraphs = text.split("\\n\\s*\\n");
+        return paragraphs.length;
+    }
+
+    private static int countLines(String text) {
+        String[] lines = text.split("\\n");
+        return lines.length;
+    }
+
+    private static int countCharacters(String text) {
+        return text.length();
+    }
+}

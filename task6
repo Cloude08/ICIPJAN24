@@ -1,0 +1,78 @@
+import java.util.ArrayList;
+
+class User {
+    private String username;
+    private ArrayList<String> inbox;
+
+    public User(String username) {
+        this.username = username;
+        this.inbox = new ArrayList<>();
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void receiveEmail(String sender, String message) {
+        String email = "From: " + sender + "\n\n" + message;
+        inbox.add(email);
+    }
+
+    public void viewInbox() {
+        System.out.println("Inbox for " + username + ":");
+        for (String email : inbox) {
+            System.out.println(email);
+            System.out.println("----------");
+        }
+    }
+}
+
+class EmailSystem {
+    private ArrayList<User> users;
+
+    public EmailSystem() {
+        this.users = new ArrayList<>();
+    }
+
+    public void addUser(String username) {
+        User newUser = new User(username);
+        users.add(newUser);
+    }
+
+    public User getUser(String username) {
+        for (User user : users) {
+            if (user.getUsername().equals(username)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    public void sendEmail(String sender, String receiver, String message) {
+        User recipient = getUser(receiver);
+        if (recipient != null) {
+            recipient.receiveEmail(sender, message);
+            System.out.println("Email sent from " + sender + " to " + receiver);
+        } else {
+            System.out.println("Error: User " + receiver + " not found.");
+        }
+    }
+}
+
+public class EmailProgram {
+    public static void main(String[] args) {
+        EmailSystem emailSystem = new EmailSystem();
+
+        // Adding users to the email system
+        emailSystem.addUser("user1");
+        emailSystem.addUser("user2");
+
+        // Sending emails
+        emailSystem.sendEmail("user1", "user2", "Hello there! How are you?");
+        emailSystem.sendEmail("user2", "user1", "I'm good. Thanks for asking!");
+
+        // Viewing inbox
+        emailSystem.getUser("user1").viewInbox();
+        emailSystem.getUser("user2").viewInbox();
+    }
+}

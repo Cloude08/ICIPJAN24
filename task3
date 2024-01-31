@@ -1,0 +1,160 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+public class brickbreaker extends JFrame implements KeyListener {
+
+    private static final int WIDTH = 800;
+    private static final int HEIGHT = 600;
+
+    private int paddleX = WIDTH / 2 - 50;
+    private int paddleY = HEIGHT - 50;
+    private int paddleSpeed = 5;
+
+    private int ballX = WIDTH / 2 - 10;
+    private int ballY = HEIGHT / 2 - 10;
+    private int ballSpeedX = 3;
+    private int ballSpeedY = 3;
+
+    private int brickWidth = 80;
+    private int brickHeight = 20;
+    private int numRows = 5;
+    private int numCols = 10;
+    private int[][] bricks;
+
+    private boolean leftKeyPressed = false;
+    private boolean rightKeyPressed = false;
+
+    private boolean isRunning = true;
+
+    public brickbreaker() {
+        setTitle("Brick Breaker Game");
+        setSize(WIDTH, HEIGHT);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setResizable(false);
+        addKeyListener(this);
+
+        initializeBricks();
+
+        Timer timer = new Timer(10, e -> gameLoop());
+        timer.start();
+    }
+
+    private void initializeBricks() {
+        bricks = new int[numRows][numCols];
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                bricks[i][j] = 1; // 1 represents an active brick
+            }
+        }
+    }
+
+    private void gameLoop() {
+        if (isRunning) {
+            movePaddle();
+            moveBall();
+            checkCollision();
+            repaint();
+        }
+    }
+
+    private void movePaddle() {
+        if (leftKeyPressed && paddleX > 0) {
+            paddleX -= paddleSpeed;
+        }
+        if (rightKeyPressed && paddleX < WIDTH - 100) {
+            paddleX += paddleSpeed;
+        }
+    }
+
+    private void moveBall() {
+        ballX += ballSpeedX;
+        ballY += ballSpeedY;
+
+        if (ballX <= 0 || ballX >= WIDTH - 20) {
+            ballSpeedX = -ballSpeedX;
+        }
+
+        if (ballY <= 0 || ballY >= HEIGHT - 20) {
+            ballSpeedY = -ballSpeedY;
+        }
+    }
+
+    private void checkCollision() {
+        Rectangle paddleRect = new Rectangle(paddleX, paddleY, 100, 20);
+        Rectangle ballRect = new Rectangle(ballX, ballY, 20, 20);
+
+        if (paddleRect.intersects(ballRect)) {
+            ballSpeedY = -ballSpeedY;
+        }
+
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                if (bricks[i][j] == 1) {
+                    Rectangle brickRect = new Rectangle(j * brickWidth, i * brickHeight, brickWidth, brickHeight);
+                    if (brickRect.intersects(ballRect)) {
+                        bricks[i][j] = 0; // 0 represents a broken brick
+                        ballSpeedY = -ballSpeedY;
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        g.clearRect(0, 0, WIDTH, HEIGHT);
+
+        g.setColor(Color.BLUE);
+        g.fillRect(paddleX, paddleY, 100, 20);
+
+        g.setColor(Color.RED);
+        g.fillOval(ballX, ballY, 20, 20);
+
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                if (bricks[i][j] == 1) {
+                    g.setColor(Color.ORANGE);
+                    g.fillRect(j * brickWidth, i * brickHeight, brickWidth, brickHeight);
+                    g.setColor(Color.BLACK);
+                    g.drawRect(j * brickWidth, i * brickHeight, brickWidth, brickHeight);
+                }
+            }
+        }
+
+        Toolkit.getDefaultToolkit().sync();
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+            leftKeyPressed = true;
+        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            rightKeyPressed = true;
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+            leftKeyPressed = false;
+        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            rightKeyPressed = false;
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        // Unused, but required by KeyListener interface
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            brickbreaker game = new brickbreaker();
+            game.setVisible(true);
+        });
+    }
+}
